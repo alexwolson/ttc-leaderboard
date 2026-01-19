@@ -148,7 +148,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             average_speeds[route] = parseFloat((trams[route].total_speed / trams[route].total_trams).toFixed(1));
         }
 
-        const sorted_average_speeds = Object.entries(average_speeds).sort((a, b) => b[1] - a[1]);
+        const sorted_average_speeds = Object.entries(average_speeds).sort(
+            ([routeTagA, speedA], [routeTagB, speedB]) => {
+                // Deterministic ordering to reduce UI jitter:
+                // - Primary: live speed (desc)
+                // - Secondary: routeTag (asc)
+                const speedDiff = speedB - speedA;
+                if (speedDiff !== 0) return speedDiff;
+                return routeTagA.localeCompare(routeTagB, undefined, { numeric: true });
+            }
+        );
         const routeTitlesByTag = await getRouteTitlesByTag(parser);
 
         const updatedAt = new Date().toISOString();

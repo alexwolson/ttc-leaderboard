@@ -58,7 +58,7 @@ The task is complete when ALL of the following are true:
   - `liveSpeedKmh`
   - `vehicleCount`
   - `updatedAt` (ISO string)
-- [ ] Ensure the API sorts results deterministically (primary by selected metric, secondary by `routeTag`) to avoid UI jitter.
+- [x] Ensure the API sorts results deterministically (primary by selected metric, secondary by `routeTag`) to avoid UI jitter.
 
 ### Phase 2 — 24-hour rolling averages (persistence + computation)
 

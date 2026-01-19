@@ -111,3 +111,17 @@
 - **Completed**: Phase 1 checkbox — replaced the `/api/ttc` tuple response with a stable object response including `routeTag`, `routeTitle`, `liveSpeedKmh`, `vehicleCount`, and `updatedAt` (ISO string).
 - **Changes**: Updated `api/ttc.ts` to return `LiveRouteSpeed[]`; updated `src/App.tsx` to consume the new response shape (minimal mapping to existing UI model).
 - **Next**: Phase 1 — deterministic API sorting to avoid UI jitter (tie-break by `routeTag`).
+
+### 2026-01-19 18:37:09
+**Session 8 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:37:11
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:37:11
+**Session 9 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:38:14
+- **Completed**: Phase 1 checkbox — ensured `/api/ttc` sorting is deterministic (speed desc, tie-break by `routeTag`) to reduce UI jitter.
+- **Changes**: Updated `api/ttc.ts` sort comparator to be stable and deterministic for equal speeds; marked the checkbox complete in `RALPH_TASK.md`.
+- **Next**: Phase 2 — choose and implement a persistence strategy for 24h history (recommended: Vercel KV).
