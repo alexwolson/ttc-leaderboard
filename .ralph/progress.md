@@ -82,3 +82,18 @@
 - **Completed**: Phase 1 checkbox — implemented validation rules for invalid speed values (missing/empty/non-numeric/negative excluded; 0 included) to prevent `NaN`/`Infinity`.
 - **Changes**: Added `parseSpeedKmh(...)` in `api/ttc.ts`, excluded invalid samples from aggregates, and documented rules in `README.md`; marked the Phase 1 checkbox complete in `RALPH_TASK.md`.
 - **Next**: Phase 1 — add route titles to API response (no hardcoded map), then define a stable response shape.
+
+### 2026-01-19 18:32:44
+**Session 6 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:32:46
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:32:46
+**Session 7 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:45:00
+- **Completed**: Phase 1 checkbox — added TTC route titles to the API response (no hardcoded map) by fetching NextBus/UmoIQ `routeList` metadata.
+- **Changes**: Implemented `getRouteTitlesByTag(...)` with an in-memory TTL cache; appended `routeTitle` as the 3rd element in each returned tuple to keep index 0/1 backward compatible; marked the Phase 1 checkbox complete in `RALPH_TASK.md`.
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 1 — define and implement a stable API response shape (objects) including `routeTitle` and metadata.

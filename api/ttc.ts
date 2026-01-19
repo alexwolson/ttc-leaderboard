@@ -6,6 +6,60 @@ function asArray<T>(value: T | T[] | null | undefined): T[] {
     return Array.isArray(value) ? value : [value];
 }
 
+type RouteTitlesCache = {
+    fetchedAtMs: number;
+    titlesByRouteTag: Record<string, string>;
+};
+
+let routeTitlesCache: RouteTitlesCache | null = null;
+const ROUTE_TITLES_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+/**
+ * Fetch TTC route titles (tag -> title) from NextBus/UmoIQ route metadata.
+ *
+ * Endpoint: `command=routeList&a=ttc`
+ *
+ * Notes:
+ * - This is best-effort: if metadata fetch fails, we return the last cached value (if any) or `{}`.
+ * - Titles are *not* hardcoded; callers should fall back gracefully if a title is missing.
+ */
+async function getRouteTitlesByTag(parser: XMLParser): Promise<Record<string, string>> {
+    const now = Date.now();
+    if (routeTitlesCache && now - routeTitlesCache.fetchedAtMs < ROUTE_TITLES_TTL_MS) {
+        return routeTitlesCache.titlesByRouteTag;
+    }
+
+    try {
+        const resp = await fetch(
+            'https://webservices.umoiq.com/service/publicXMLFeed?command=routeList&a=ttc'
+        );
+        if (!resp.ok) {
+            throw new Error(`Failed to fetch routeList (${resp.status})`);
+        }
+
+        const xml = await resp.text();
+        const json = parser.parse(xml);
+
+        // Feed shape guard: `body.route` may be an array OR a single object.
+        const routes = asArray<Record<string, unknown>>(json?.body?.route);
+        const titlesByRouteTag: Record<string, string> = {};
+
+        for (const route of routes) {
+            const tag = route['@_tag'];
+            const title = route['@_title'];
+            if (typeof tag !== 'string' || tag.length === 0) continue;
+            if (typeof title !== 'string' || title.length === 0) continue;
+            titlesByRouteTag[tag] = title;
+        }
+
+        routeTitlesCache = { fetchedAtMs: now, titlesByRouteTag };
+        return titlesByRouteTag;
+    } catch {
+        // Degrade gracefully: keep serving live speeds even if route titles cannot be fetched.
+        return routeTitlesCache?.titlesByRouteTag ?? {};
+    }
+}
+
 /**
  * Parse and validate TTC/UmoIQ `speedKmHr` values.
  *
@@ -87,12 +141,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const sorted_average_speeds = Object.entries(average_speeds).sort((a, b) => b[1] - a[1]);
+        const routeTitlesByTag = await getRouteTitlesByTag(parser);
+
+        // Temporary API shape (kept backward compatible with the existing UI):
+        // - index 0: routeTag
+        // - index 1: live average speed (km/h)
+        // - index 2: routeTitle (string) or null if unavailable
+        const sorted_average_speeds_with_titles = sorted_average_speeds.map(([routeTag, speed]) => [
+            routeTag,
+            speed,
+            routeTitlesByTag[routeTag] ?? null,
+        ]);
 
         // Set CORS headers to allow requests from your frontend
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Content-Type', 'application/json');
 
-        return res.status(200).json(sorted_average_speeds);
+        return res.status(200).json(sorted_average_speeds_with_titles);
     } catch (error) {
         console.error('Error fetching TTC data:', error);
         return res.status(500).json({ error: 'Internal server error' });
