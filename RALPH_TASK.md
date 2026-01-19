@@ -71,7 +71,7 @@ The task is complete when ALL of the following are true:
 - [x] Implement clear behavior when persistence is unavailable (e.g., missing KV env):
   - API still returns live speeds
   - `avg24hSpeedKmh` is `null` (or omitted) and UI indicates “24h unavailable”
-- [ ] Add basic safeguards for serverless constraints (payload size, KV key cardinality, trimming strategy).
+- [x] Add basic safeguards for serverless constraints (payload size, KV key cardinality, trimming strategy).
 
 ### Phase 3 — Frontend: display all routes + 24h averages
 

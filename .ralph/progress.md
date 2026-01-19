@@ -213,3 +213,18 @@
 - **Changes**: Updated `api/ttc.ts` to include an explicit `avg24hAvailable` flag and to return `avg24hSpeedKmh: null` when KV is not configured / KV fails; updated `src/App.tsx` to display “24h averages unavailable” when the API reports that 24h averages aren’t available.
 - **Verification**: Ran `npm run lint && npm run build` (pass).
 - **Next**: Phase 2 — add serverless safeguards for KV/storage strategy (payload size, key cardinality, trimming).
+
+### 2026-01-19 18:56:13
+**Session 16 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:56:15
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:56:15
+**Session 17 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:59:00
+- **Completed**: Phase 2 checkbox — added serverless safeguards for KV-backed 24-hour averages (payload size, key cardinality, and trimming strategy).
+- **Changes**: Updated `api/avg24h.ts` to cap per-route sample history, store samples in a compact `[t, v]` tuple format (while still reading legacy `{ t, v }`), and chunk KV `mget`/write operations (including pipelines) to avoid oversized KV requests; also removed an O(n^2) lookup path by indexing live routes with a `Map`.
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 3 — update the UI to use `routeTitle` from the API and display live vs 24h metrics.
