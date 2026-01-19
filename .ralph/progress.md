@@ -40,3 +40,17 @@
 - **Completed**: Phase 0 checkbox — added a learned guardrail for invalid/missing speed values yielding `NaN`.
 - **Changes**: Updated `.ralph/guardrails.md`; marked Phase 0 guardrail checkbox complete in `RALPH_TASK.md`.
 - **Verification**: Ran `npm run lint && npm run build` (pass).
+
+### 2026-01-19 18:27:14
+**Session 3 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:27:16
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:27:16
+**Session 4 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:28:41
+- **Completed**: Phase 1 checkbox — removed the streetcar-only (`5xx`) route filter in `api/ttc.ts` so live speed averages include all routes present in the feed.
+- **Changes**: Updated `api/ttc.ts`; marked the Phase 1 checkbox complete in `RALPH_TASK.md`.
+- **Verification**: Ran `npm run lint && npm run build` (pass).

@@ -47,7 +47,7 @@ The task is complete when ALL of the following are true:
 
 ### Phase 1 — Backend: include all routes + route titles
 
-- [ ] Update `api/ttc.ts` to **not** filter only `5xx` routes; compute live averages for all routes with speed data.
+- [x] Update `api/ttc.ts` to **not** filter only `5xx` routes; compute live averages for all routes with speed data.
 - [ ] Handle feed shape differences safely (e.g., `vehicle` can be a single object or an array) without throwing.
 - [ ] Decide and implement rules for invalid speed values (missing, non-numeric, negative). Document the rule in code comments and README.
 - [ ] Provide **route titles** for returned routes (no hardcoded streetcar-only map). Preferred approach:

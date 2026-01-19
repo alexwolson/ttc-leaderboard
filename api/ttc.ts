@@ -24,24 +24,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const trams: { [key: string]: { total_speed: number, total_trams: number } } = {};
 
         for (const vehicle of vehicles) {
-            if (vehicle["@_routeTag"].length == 3 && vehicle["@_routeTag"].startsWith("5")) {
-                const route = vehicle["@_routeTag"];
-                if (!trams[route]) {
-                    trams[route] = {
-                        total_speed: 0,
-                        total_trams: 0
-                    };
-                }
-                // Speed definition (current behavior):
-                // - Source: TTC/UmoIQ (NextBus) `vehicleLocations` feed attribute `speedKmHr`
-                // - Units: km/h (instantaneous per-vehicle speed as reported in the feed)
-                // - Per-route speed is currently the *simple arithmetic mean* of `speedKmHr`
-                //   across all active vehicles on that route (including stopped vehicles at 0 km/h).
-                // - Pitfall: if `@_speedKmHr` is missing/non-numeric, `parseInt(...)` becomes NaN and
-                //   can poison the route average. Later iterations will add validation rules.
-                trams[route].total_speed += parseInt(vehicle["@_speedKmHr"]);
-                trams[route].total_trams += 1;
+            const route = vehicle["@_routeTag"];
+            if (!trams[route]) {
+                trams[route] = {
+                    total_speed: 0,
+                    total_trams: 0
+                };
             }
+            // Speed definition (current behavior):
+            // - Source: TTC/UmoIQ (NextBus) `vehicleLocations` feed attribute `speedKmHr`
+            // - Units: km/h (instantaneous per-vehicle speed as reported in the feed)
+            // - Per-route speed is currently the *simple arithmetic mean* of `speedKmHr`
+            //   across all active vehicles on that route (including stopped vehicles at 0 km/h).
+            // - Pitfall: if `@_speedKmHr` is missing/non-numeric, `parseInt(...)` becomes NaN and
+            //   can poison the route average. Later iterations will add validation rules.
+            trams[route].total_speed += parseInt(vehicle["@_speedKmHr"]);
+            trams[route].total_trams += 1;
         }
 
         const average_speeds: { [key: string]: number } = {};
