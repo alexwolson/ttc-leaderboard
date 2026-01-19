@@ -68,3 +68,17 @@
 - **Completed**: Phase 1 checkbox — hardened `api/ttc.ts` against TTC feed shape differences (`body.vehicle` single object vs array vs missing), avoiding runtime throws.
 - **Changes**: Normalized parsed vehicles with an `asArray(...)` helper and skipped vehicles missing a valid `routeTag`.
 - **Verification**: Ran `npm run lint && npm run build` (pass).
+
+### 2026-01-19 18:31:04
+**Session 5 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:31:06
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:31:06
+**Session 6 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:36:00
+- **Completed**: Phase 1 checkbox — implemented validation rules for invalid speed values (missing/empty/non-numeric/negative excluded; 0 included) to prevent `NaN`/`Infinity`.
+- **Changes**: Added `parseSpeedKmh(...)` in `api/ttc.ts`, excluded invalid samples from aggregates, and documented rules in `README.md`; marked the Phase 1 checkbox complete in `RALPH_TASK.md`.
+- **Next**: Phase 1 — add route titles to API response (no hardcoded map), then define a stable response shape.

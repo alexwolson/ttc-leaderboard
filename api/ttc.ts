@@ -6,6 +6,28 @@ function asArray<T>(value: T | T[] | null | undefined): T[] {
     return Array.isArray(value) ? value : [value];
 }
 
+/**
+ * Parse and validate TTC/UmoIQ `speedKmHr` values.
+ *
+ * Rule (Iteration 6):
+ * - Missing/empty/non-numeric values are invalid and ignored.
+ * - Negative values are invalid and ignored.
+ * - 0 is considered a valid speed (stopped vehicle) and is included in averages.
+ *
+ * This keeps aggregates deterministic and prevents `NaN`/`Infinity` from propagating.
+ */
+function parseSpeedKmh(value: unknown): number | null {
+    if (value === null || value === undefined) return null;
+    const raw = String(value).trim();
+    if (raw.length === 0) return null;
+
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return null;
+    if (n < 0) return null;
+
+    return n;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         const response = await fetch(
@@ -37,26 +59,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 // Unexpected/missing route tag; skip rather than throwing.
                 continue;
             }
+            const speedKmh = parseSpeedKmh(vehicle['@_speedKmHr']);
+            if (speedKmh === null) {
+                // Invalid speed values are excluded from averages.
+                continue;
+            }
             if (!trams[route]) {
                 trams[route] = {
                     total_speed: 0,
                     total_trams: 0
                 };
             }
-            // Speed definition (current behavior):
+            // Speed definition:
             // - Source: TTC/UmoIQ (NextBus) `vehicleLocations` feed attribute `speedKmHr`
             // - Units: km/h (instantaneous per-vehicle speed as reported in the feed)
-            // - Per-route speed is currently the *simple arithmetic mean* of `speedKmHr`
-            //   across all active vehicles on that route (including stopped vehicles at 0 km/h).
-            // - Pitfall: if `@_speedKmHr` is missing/non-numeric, `parseInt(...)` becomes NaN and
-            //   can poison the route average. Later iterations will add validation rules.
-            trams[route].total_speed += parseInt(String(vehicle['@_speedKmHr']));
+            // - Per-route speed is the *simple arithmetic mean* of valid `speedKmHr` samples
+            //   across active vehicles on that route. See `parseSpeedKmh(...)` for validation rules.
+            trams[route].total_speed += speedKmh;
             trams[route].total_trams += 1;
         }
 
         const average_speeds: { [key: string]: number } = {};
 
         for (const route of Object.keys(trams)) {
+            if (trams[route].total_trams <= 0) continue;
             average_speeds[route] = parseFloat((trams[route].total_speed / trams[route].total_trams).toFixed(1));
         }
 

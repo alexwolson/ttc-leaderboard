@@ -54,7 +54,7 @@ npm run build
    - **Speed source**: TTC/UmoIQ (NextBus) public XML feed `vehicleLocations`, vehicle attribute `speedKmHr`
    - **Units**: km/h
    - **Current meaning**: instantaneous per-vehicle speed as reported by the feed; route speed is the simple arithmetic mean across active vehicles on that route (including stopped vehicles at 0 km/h)
-   - **Pitfalls**: `speedKmHr` can be missing/empty/non-numeric for some vehicles; if so, the current implementation may produce `NaN` route averages until validation rules are added
+   - **Validation rules**: missing/empty/non-numeric/negative `speedKmHr` values are excluded from averages; 0 is treated as valid (stopped vehicle). Routes with no valid speed samples are omitted to prevent `NaN`/`Infinity`.
 3. **Change Detection** — Only routes with updated speeds are added to the update queue
 4. **Queue Processing** — Updates are processed one at a time; if a position change occurs, the UI waits 1 second for the animation, otherwise it moves to the next update immediately
 5. **Ranking** — Routes are sorted by speed, fastest at the top
