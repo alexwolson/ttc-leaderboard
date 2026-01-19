@@ -62,7 +62,7 @@ The task is complete when ALL of the following are true:
 
 ### Phase 2 — 24-hour rolling averages (persistence + computation)
 
-- [ ] Choose a persistence strategy for 24h history. Preferred: Vercel KV via `@vercel/kv`.
+- [x] Choose a persistence strategy for 24h history. Preferred: Vercel KV via `@vercel/kv`.
 - [ ] Add any required dependencies and wire up environment variable configuration (document in README).
 - [ ] Implement a sampling/aggregation strategy that produces a rolling 24-hour average per route. Minimum requirements:
   - stores samples with timestamps

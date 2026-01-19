@@ -125,3 +125,29 @@
 - **Completed**: Phase 1 checkbox — ensured `/api/ttc` sorting is deterministic (speed desc, tie-break by `routeTag`) to reduce UI jitter.
 - **Changes**: Updated `api/ttc.ts` sort comparator to be stable and deterministic for equal speeds; marked the checkbox complete in `RALPH_TASK.md`.
 - **Next**: Phase 2 — choose and implement a persistence strategy for 24h history (recommended: Vercel KV).
+
+### 2026-01-19 18:38:42
+**Session 9 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:38:44
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:38:44
+**Session 10 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:40:16
+- **Completed**: Phase 2 checkbox — chose **Vercel KV** (via `@vercel/kv`) as the persistence strategy for 24-hour history.
+- **Changes**: Marked the Phase 2 persistence-strategy checkbox complete in `RALPH_TASK.md`; noted the KV-based persistence approach in `README.md`.
+- **Next**: Phase 2 — add the KV dependency + env var wiring, then implement sampling/aggregation.
+
+### 2026-01-19 18:40:16
+**Session 10 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:40:34
+**Session 10 ended** - Agent finished naturally (15 criteria remaining)
+
+### 2026-01-19 18:40:36
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:40:36
+**Session 11 started** (provider: cursor, model: auto)
