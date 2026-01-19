@@ -28,3 +28,8 @@
 - **Instruction**: Treat missing/non-numeric/negative values as invalid, exclude them from aggregates, and ensure outputs never become `NaN` (use `null` or omit fields when no valid samples exist).
 - **Added after**: Iteration 3 - discovered missing/non-numeric speed values can yield `NaN` and break sorting/UI expectations
 
+### Sign: Avoid `any` in API helpers (ESLint)
+- **Trigger**: When integrating dynamic clients (e.g., Vercel KV) and you’re tempted to cast to `any`
+- **Instruction**: Define a minimal local interface/type for the methods you call (e.g., `get`, `mget`, `set`, `pipeline`) and cast to that, so `npm run lint` passes `@typescript-eslint/no-explicit-any`.
+- **Added after**: Iteration 15 - lint failed due to `const client = kv as any` in the 24h average helper
+

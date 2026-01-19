@@ -184,3 +184,17 @@
 - **Changes**: Added `api/kv.ts` helper for KV env detection/client creation; added `.env.example`; updated `.gitignore` to avoid committing `.env`; documented KV env vars in `README.md`; marked the Phase 2 checkbox complete in `RALPH_TASK.md`.
 - **Verification**: Ran `npm run lint && npm run build` (pass).
 - **Next**: Phase 2 — implement sampling/aggregation strategy for rolling 24h averages.
+
+### 2026-01-19 18:48:33
+**Session 14 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:48:35
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:48:35
+**Session 15 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:52:48
+- **Completed**: Phase 2 checkbox — implemented a KV-backed sampling/aggregation strategy for rolling 24-hour averages per route.
+- **Changes**: Added `api/avg24h.ts` to persist timestamped samples (minute buckets), trim samples older than 24 hours, and compute a time-weighted 24h average; updated `api/ttc.ts` to include `avg24hSpeedKmh` in the response when KV is configured (best-effort, degrades gracefully on KV failure); marked the checkbox complete in `RALPH_TASK.md`.
+- **Next**: Phase 2 — implement explicit behavior when persistence is unavailable, then add serverless safeguards (KV key/payload strategy).

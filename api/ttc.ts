@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { XMLParser } from 'fast-xml-parser';
+import { getAvg24hSpeedsByRouteTag, type LiveRouteSample } from './avg24h';
+import { getKvClient } from './kv';
 
 function asArray<T>(value: T | T[] | null | undefined): T[] {
     if (!value) return [];
@@ -10,6 +12,7 @@ type LiveRouteSpeed = {
     routeTag: string;
     routeTitle: string | null;
     liveSpeedKmh: number;
+    avg24hSpeedKmh: number | null;
     vehicleCount: number;
     updatedAt: string; // ISO string
 };
@@ -92,6 +95,7 @@ function parseSpeedKmh(value: unknown): number | null {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
+        const nowMs = Date.now();
         const response = await fetch(
             'https://webservices.umoiq.com/service/publicXMLFeed?command=vehicleLocations&a=ttc'
         );
@@ -160,13 +164,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         );
         const routeTitlesByTag = await getRouteTitlesByTag(parser);
 
-        const updatedAt = new Date().toISOString();
-        const routes: LiveRouteSpeed[] = sorted_average_speeds.map(([routeTag, speed]) => ({
+        const updatedAt = new Date(nowMs).toISOString();
+        const baseRoutes = sorted_average_speeds.map(([routeTag, speed]) => ({
             routeTag,
             routeTitle: routeTitlesByTag[routeTag] ?? null,
             liveSpeedKmh: speed,
             vehicleCount: trams[routeTag]?.total_trams ?? 0,
             updatedAt,
+        }));
+
+        let avg24hByRouteTag: Record<string, number | null> = {};
+        try {
+            const kv = await getKvClient();
+            if (kv) {
+                const samples: LiveRouteSample[] = baseRoutes.map((r) => ({
+                    routeTag: r.routeTag,
+                    liveSpeedKmh: r.liveSpeedKmh,
+                }));
+                avg24hByRouteTag = await getAvg24hSpeedsByRouteTag(kv, samples, nowMs);
+            }
+        } catch {
+            // Degrade gracefully if KV is misconfigured/unavailable or the KV call fails.
+            avg24hByRouteTag = {};
+        }
+
+        const routes: LiveRouteSpeed[] = baseRoutes.map((r) => ({
+            ...r,
+            avg24hSpeedKmh: avg24hByRouteTag[r.routeTag] ?? null,
         }));
 
         // Set CORS headers to allow requests from your frontend
