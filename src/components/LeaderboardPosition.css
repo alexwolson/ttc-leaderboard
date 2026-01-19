@@ -1,0 +1,28 @@
+* {}
+
+.leaderboard-position {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Monospace', monospace;
+}
+
+.content {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.left-side {
+    display: flex;
+    justify-content: left;
+}
+
+.right-side {
+    display: flex;
+    justify-content: right;
+}
+
+.position-route-number {
+    color: red;
+}
