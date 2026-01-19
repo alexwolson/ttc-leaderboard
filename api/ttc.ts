@@ -40,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const average_speeds: { [key: string]: number } = {};
 
         for (let route of Object.keys(trams)) {
-            average_speeds[route] = trams[route].total_speed / trams[route].total_trams;
+            average_speeds[route] = parseFloat((trams[route].total_speed / trams[route].total_trams).toFixed(1));
         }
 
         const sorted_average_speeds = Object.entries(average_speeds).sort((a, b) => b[1] - a[1]);

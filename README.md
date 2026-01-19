@@ -1,73 +1,76 @@
-# React + TypeScript + Vite
+# TTC Streetcar Leaderboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Recently, Toronto opened Line 6, the first new rapid transit line in the city in over 20 years. The route was advertised with a ~30 minute end-to-end journey time, but on opening day, it took nearly an hour.
 
-Currently, two official plugins are available:
+This issue with speed is not endemic to the LRT, and has been known about for years, especially with the city's streetcar network. 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This website is intended to be a social commentary on the state of the TTC's streetcar network, in an attempt to raise awareness and hopefully spur some action.
 
-## React Compiler
+Many people blame the lack of TSP (transit signal priority), but there are many other factors that contribute to slow streetcars, including stop spacing, arbitrary speed limits, and mixed traffic.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19 + TypeScript |
+| Animations | Framer Motion |
+| Build Tool | Vite |
+| Backend | Vercel Serverless Functions |
+| Data Source | TTC NextBus XML Feed |
+| Analytics | Vercel Analytics |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
+- Node.js 20.x or later
+- npm
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Clone the repository
+git clone https://github.com/lukajvnic/ttc-leaderboard.git
+cd ttc-leaderboard
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app will be available at `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Build for Production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+## 📊 How It Works
+
+1. **Data Fetching** — The serverless API (`/api/ttc`) fetches the TTC's live vehicle location feed
+2. **Speed Calculation** — Calculates average speed for each route based on all active streetcars
+3. **Change Detection** — Only routes with updated speeds are added to the update queue
+4. **Queue Processing** — Updates are processed one at a time; if a position change occurs, the UI waits 1 second for the animation, otherwise it moves to the next update immediately
+5. **Ranking** — Routes are sorted by speed, fastest at the top
+
+## 🗂️ Project Structure
+
+```
+ttcleaderboard/
+├── api/
+│   └── ttc.ts              # Vercel serverless function for TTC data
+├── src/
+│   ├── components/
+│   │   └── LeaderboardPosition.tsx  # Individual route row component
+│   ├── App.tsx             # Main application component
+│   ├── LeaderboardQueue.ts # Queue data structure for updates
+│   └── App.css             # Global styles
+├── index.html
+└── package.json
+```
+
+## 👤 Author
+
+**Luka Jovanovic** — [lukajvnic.com](https://lukajvnic.com)

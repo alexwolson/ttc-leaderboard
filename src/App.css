@@ -19,3 +19,14 @@
   text-align: center;
   margin: 1rem;
 }
+
+.loading {
+  color: red;
+  font-family: monospace;
+}
+
+.info {
+  text-align: center;
+  margin: 1rem;
+  /* font-family: monospace; */
+}

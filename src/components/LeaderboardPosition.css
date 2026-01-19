@@ -1,5 +1,3 @@
-* {}
-
 .leaderboard-position {
     display: flex;
     flex-direction: column;
@@ -25,4 +23,8 @@
 
 .position-route-number {
     color: red;
+}
+
+.position-route-number.blue {
+    color: #4a9eff;
 }

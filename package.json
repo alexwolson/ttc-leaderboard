@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.6.1",
     "fast-xml-parser": "^5.3.3",
+    "framer-motion": "^12.27.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
