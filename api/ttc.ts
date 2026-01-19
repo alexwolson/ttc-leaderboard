@@ -1,6 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { XMLParser } from 'fast-xml-parser';
 
+function asArray<T>(value: T | T[] | null | undefined): T[] {
+    if (!value) return [];
+    return Array.isArray(value) ? value : [value];
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         const response = await fetch(
@@ -20,11 +25,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
         const jsonData = parser.parse(xmlData);
 
-        const vehicles = jsonData.body.vehicle;
+        // Feed shape guard:
+        // - `body.vehicle` may be an array OR a single object depending on how many vehicles exist.
+        // - It may also be missing entirely if the feed is empty or changes shape.
+        const vehicles = asArray<Record<string, unknown>>(jsonData?.body?.vehicle);
         const trams: { [key: string]: { total_speed: number, total_trams: number } } = {};
 
         for (const vehicle of vehicles) {
-            const route = vehicle["@_routeTag"];
+            const route = vehicle['@_routeTag'];
+            if (typeof route !== 'string' || route.length === 0) {
+                // Unexpected/missing route tag; skip rather than throwing.
+                continue;
+            }
             if (!trams[route]) {
                 trams[route] = {
                     total_speed: 0,
@@ -38,7 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             //   across all active vehicles on that route (including stopped vehicles at 0 km/h).
             // - Pitfall: if `@_speedKmHr` is missing/non-numeric, `parseInt(...)` becomes NaN and
             //   can poison the route average. Later iterations will add validation rules.
-            trams[route].total_speed += parseInt(vehicle["@_speedKmHr"]);
+            trams[route].total_speed += parseInt(String(vehicle['@_speedKmHr']));
             trams[route].total_trams += 1;
         }
 
