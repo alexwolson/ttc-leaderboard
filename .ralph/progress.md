@@ -26,3 +26,17 @@
 
 ### 2026-01-19 18:23:22
 **Session 2 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:26:11
+**Session 2 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:26:13
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:26:13
+**Session 3 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:33:00
+- **Completed**: Phase 0 checkbox — added a learned guardrail for invalid/missing speed values yielding `NaN`.
+- **Changes**: Updated `.ralph/guardrails.md`; marked Phase 0 guardrail checkbox complete in `RALPH_TASK.md`.
+- **Verification**: Ran `npm run lint && npm run build` (pass).

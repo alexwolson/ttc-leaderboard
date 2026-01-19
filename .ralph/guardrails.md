@@ -23,3 +23,8 @@
 
 ## Learned Signs
 
+### Sign: Guard Against Invalid Speed Values
+- **Trigger**: When computing averages from feed fields like `@_speedKmHr` / `speedKmHr`
+- **Instruction**: Treat missing/non-numeric/negative values as invalid, exclude them from aggregates, and ensure outputs never become `NaN` (use `null` or omit fields when no valid samples exist).
+- **Added after**: Iteration 3 - discovered missing/non-numeric speed values can yield `NaN` and break sorting/UI expectations
+
