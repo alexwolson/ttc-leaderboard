@@ -51,6 +51,10 @@ npm run build
 
 1. **Data Fetching** — The serverless API (`/api/ttc`) fetches the TTC's live vehicle location feed
 2. **Speed Calculation** — Calculates average speed for each route based on all active streetcars
+   - **Speed source**: TTC/UmoIQ (NextBus) public XML feed `vehicleLocations`, vehicle attribute `speedKmHr`
+   - **Units**: km/h
+   - **Current meaning**: instantaneous per-vehicle speed as reported by the feed; route speed is the simple arithmetic mean across active vehicles on that route (including stopped vehicles at 0 km/h)
+   - **Pitfalls**: `speedKmHr` can be missing/empty/non-numeric for some vehicles; if so, the current implementation may produce `NaN` route averages until validation rules are added
 3. **Change Detection** — Only routes with updated speeds are added to the update queue
 4. **Queue Processing** — Updates are processed one at a time; if a position change occurs, the UI waits 1 second for the animation, otherwise it moves to the next update immediately
 5. **Ranking** — Routes are sorted by speed, fastest at the top

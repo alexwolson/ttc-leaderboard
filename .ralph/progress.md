@@ -6,3 +6,23 @@
 
 ## Session History
 
+
+### 2026-01-19 18:22:13
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:22:13
+**Session 1 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:26:00
+- **Completed**: Phase 0 checkbox — documented current “speed” definition (`@_speedKmHr` / `speedKmHr`), units (km/h), and pitfalls (missing/non-numeric values can yield `NaN`).
+- **Changes**: Added inline documentation in `api/ttc.ts` and expanded “How It Works” in `README.md`.
+- **Next**: Phase 0 — add a guardrail if a repeated failure mode shows up; then move to Phase 1 backend changes.
+
+### 2026-01-19 18:23:20
+**Session 1 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:23:22
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:23:22
+**Session 2 started** (provider: cursor, model: auto)

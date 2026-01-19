@@ -42,7 +42,7 @@ The task is complete when ALL of the following are true:
 
 ### Phase 0 — Baseline / guardrails
 
-- [ ] Identify and document the current definition of “speed” (what `@_speedKmHr` represents, units, and any pitfalls like missing/zero values).
+- [x] Identify and document the current definition of “speed” (what `@_speedKmHr` represents, units, and any pitfalls like missing/zero values).
 - [ ] Add a short note to `.ralph/guardrails.md` if you encounter a repeated failure mode (e.g., broken API contract, route title mismatches, KV env confusion).
 
 ### Phase 1 — Backend: include all routes + route titles

@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const vehicles = jsonData.body.vehicle;
         const trams: { [key: string]: { total_speed: number, total_trams: number } } = {};
 
-        for (let vehicle of vehicles) {
+        for (const vehicle of vehicles) {
             if (vehicle["@_routeTag"].length == 3 && vehicle["@_routeTag"].startsWith("5")) {
                 const route = vehicle["@_routeTag"];
                 if (!trams[route]) {
@@ -32,6 +32,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         total_trams: 0
                     };
                 }
+                // Speed definition (current behavior):
+                // - Source: TTC/UmoIQ (NextBus) `vehicleLocations` feed attribute `speedKmHr`
+                // - Units: km/h (instantaneous per-vehicle speed as reported in the feed)
+                // - Per-route speed is currently the *simple arithmetic mean* of `speedKmHr`
+                //   across all active vehicles on that route (including stopped vehicles at 0 km/h).
+                // - Pitfall: if `@_speedKmHr` is missing/non-numeric, `parseInt(...)` becomes NaN and
+                //   can poison the route average. Later iterations will add validation rules.
                 trams[route].total_speed += parseInt(vehicle["@_speedKmHr"]);
                 trams[route].total_trams += 1;
             }
@@ -39,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const average_speeds: { [key: string]: number } = {};
 
-        for (let route of Object.keys(trams)) {
+        for (const route of Object.keys(trams)) {
             average_speeds[route] = parseFloat((trams[route].total_speed / trams[route].total_trams).toFixed(1));
         }
 
