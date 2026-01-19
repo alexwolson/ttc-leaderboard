@@ -9,12 +9,15 @@ type ApiLiveRouteSpeed = {
   routeTag: string;
   routeTitle: string | null;
   liveSpeedKmh: number;
+  avg24hAvailable?: boolean;
+  avg24hSpeedKmh?: number | null;
   vehicleCount: number;
   updatedAt: string;
 };
 
 function App() {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
+  const [avg24hAvailable, setAvg24hAvailable] = useState<boolean | null>(null);
   const leaderboardDataRef = useRef<LeaderboardData[]>([]);
   const leaderboardQueue = useRef(new LeaderboardQueue());
   const route_map: Record<string, string> = {
@@ -45,7 +48,16 @@ function App() {
       if (response.status !== 200)
         throw new Error(`Failed to fetch: ${response.status}`);
 
-      const newData: LeaderboardData[] = (data as ApiLiveRouteSpeed[]).map((route) => ({
+      const apiRoutes = data as ApiLiveRouteSpeed[];
+      if (Array.isArray(apiRoutes) && apiRoutes.length > 0 && typeof apiRoutes[0]?.avg24hAvailable === 'boolean') {
+        // The API explicitly reports whether KV-backed 24h averages are available.
+        // If unavailable, we should indicate that in the UI (while still showing live speeds).
+        setAvg24hAvailable(Boolean(apiRoutes[0].avg24hAvailable));
+      } else {
+        setAvg24hAvailable(null);
+      }
+
+      const newData: LeaderboardData[] = apiRoutes.map((route) => ({
         routeNumber: route.routeTag,
         speed: route.liveSpeedKmh
       }));
@@ -158,6 +170,12 @@ function App() {
         </div>
         <div className="info">
           This leaderboard is live and shows the average speed<br></br>of all streetcars on a route with ~30 second delay.
+          {avg24hAvailable === false ? (
+            <>
+              <br></br>
+              24h averages unavailable (configure Vercel KV).
+            </>
+          ) : null}
         </div>
         <div className="footer">
           <i>By <a href="https://lukajvnic.com" target="_blank">Luka Jovanovic</a> (<a href="https://github.com/lukajvnic/ttc-leaderboard" target="_blank">github</a>)</i>

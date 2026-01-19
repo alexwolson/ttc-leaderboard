@@ -198,3 +198,18 @@
 - **Completed**: Phase 2 checkbox — implemented a KV-backed sampling/aggregation strategy for rolling 24-hour averages per route.
 - **Changes**: Added `api/avg24h.ts` to persist timestamped samples (minute buckets), trim samples older than 24 hours, and compute a time-weighted 24h average; updated `api/ttc.ts` to include `avg24hSpeedKmh` in the response when KV is configured (best-effort, degrades gracefully on KV failure); marked the checkbox complete in `RALPH_TASK.md`.
 - **Next**: Phase 2 — implement explicit behavior when persistence is unavailable, then add serverless safeguards (KV key/payload strategy).
+
+### 2026-01-19 18:53:35
+**Session 15 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:53:37
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:53:37
+**Session 16 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:55:46
+- **Completed**: Phase 2 checkbox — implemented clear behavior when persistence is unavailable.
+- **Changes**: Updated `api/ttc.ts` to include an explicit `avg24hAvailable` flag and to return `avg24hSpeedKmh: null` when KV is not configured / KV fails; updated `src/App.tsx` to display “24h averages unavailable” when the API reports that 24h averages aren’t available.
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 2 — add serverless safeguards for KV/storage strategy (payload size, key cardinality, trimming).

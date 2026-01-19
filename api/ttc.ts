@@ -12,6 +12,13 @@ type LiveRouteSpeed = {
     routeTag: string;
     routeTitle: string | null;
     liveSpeedKmh: number;
+    /**
+     * Whether 24h averages are available for this response.
+     *
+     * If persistence (Vercel KV) is not configured or KV calls fail, this will be `false`
+     * and `avg24hSpeedKmh` will be `null` (live speeds still return).
+     */
+    avg24hAvailable: boolean;
     avg24hSpeedKmh: number | null;
     vehicleCount: number;
     updatedAt: string; // ISO string
@@ -173,10 +180,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             updatedAt,
         }));
 
+        let avg24hAvailable = false;
         let avg24hByRouteTag: Record<string, number | null> = {};
         try {
             const kv = await getKvClient();
             if (kv) {
+                avg24hAvailable = true;
                 const samples: LiveRouteSample[] = baseRoutes.map((r) => ({
                     routeTag: r.routeTag,
                     liveSpeedKmh: r.liveSpeedKmh,
@@ -185,12 +194,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         } catch {
             // Degrade gracefully if KV is misconfigured/unavailable or the KV call fails.
+            avg24hAvailable = false;
             avg24hByRouteTag = {};
         }
 
         const routes: LiveRouteSpeed[] = baseRoutes.map((r) => ({
             ...r,
-            avg24hSpeedKmh: avg24hByRouteTag[r.routeTag] ?? null,
+            avg24hAvailable,
+            avg24hSpeedKmh: avg24hAvailable ? (avg24hByRouteTag[r.routeTag] ?? null) : null,
         }));
 
         // Set CORS headers to allow requests from your frontend

@@ -68,7 +68,7 @@ The task is complete when ALL of the following are true:
   - stores samples with timestamps
   - trims data older than 24 hours
   - computes `avg24hSpeedKmh` robustly even with missing samples
-- [ ] Implement clear behavior when persistence is unavailable (e.g., missing KV env):
+- [x] Implement clear behavior when persistence is unavailable (e.g., missing KV env):
   - API still returns live speeds
   - `avg24hSpeedKmh` is `null` (or omitted) and UI indicates “24h unavailable”
 - [ ] Add basic safeguards for serverless constraints (payload size, KV key cardinality, trimming strategy).
