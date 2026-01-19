@@ -52,7 +52,7 @@ The task is complete when ALL of the following are true:
 - [x] Decide and implement rules for invalid speed values (missing, non-numeric, negative). Document the rule in code comments and README.
 - [x] Provide **route titles** for returned routes (no hardcoded streetcar-only map). Preferred approach:
   - fetch TTC route metadata (e.g., NextBus `routeList` and/or `routeConfig`) and map `routeTag -> title`.
-- [ ] Define and implement a stable API response shape (JSON objects, not raw tuples) that includes at minimum:
+- [x] Define and implement a stable API response shape (JSON objects, not raw tuples) that includes at minimum:
   - `routeTag`
   - `routeTitle`
   - `liveSpeedKmh`

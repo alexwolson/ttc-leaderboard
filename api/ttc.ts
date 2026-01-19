@@ -6,6 +6,14 @@ function asArray<T>(value: T | T[] | null | undefined): T[] {
     return Array.isArray(value) ? value : [value];
 }
 
+type LiveRouteSpeed = {
+    routeTag: string;
+    routeTitle: string | null;
+    liveSpeedKmh: number;
+    vehicleCount: number;
+    updatedAt: string; // ISO string
+};
+
 type RouteTitlesCache = {
     fetchedAtMs: number;
     titlesByRouteTag: Record<string, string>;
@@ -143,21 +151,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const sorted_average_speeds = Object.entries(average_speeds).sort((a, b) => b[1] - a[1]);
         const routeTitlesByTag = await getRouteTitlesByTag(parser);
 
-        // Temporary API shape (kept backward compatible with the existing UI):
-        // - index 0: routeTag
-        // - index 1: live average speed (km/h)
-        // - index 2: routeTitle (string) or null if unavailable
-        const sorted_average_speeds_with_titles = sorted_average_speeds.map(([routeTag, speed]) => [
+        const updatedAt = new Date().toISOString();
+        const routes: LiveRouteSpeed[] = sorted_average_speeds.map(([routeTag, speed]) => ({
             routeTag,
-            speed,
-            routeTitlesByTag[routeTag] ?? null,
-        ]);
+            routeTitle: routeTitlesByTag[routeTag] ?? null,
+            liveSpeedKmh: speed,
+            vehicleCount: trams[routeTag]?.total_trams ?? 0,
+            updatedAt,
+        }));
 
         // Set CORS headers to allow requests from your frontend
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Content-Type', 'application/json');
 
-        return res.status(200).json(sorted_average_speeds_with_titles);
+        return res.status(200).json(routes);
     } catch (error) {
         console.error('Error fetching TTC data:', error);
         return res.status(500).json({ error: 'Internal server error' });

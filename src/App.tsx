@@ -5,6 +5,14 @@ import LeaderboardPosition from './components/LeaderboardPosition'
 import { LeaderboardQueue, type LeaderboardData } from './LeaderboardQueue'
 import { Analytics } from '@vercel/analytics/react'
 
+type ApiLiveRouteSpeed = {
+  routeTag: string;
+  routeTitle: string | null;
+  liveSpeedKmh: number;
+  vehicleCount: number;
+  updatedAt: string;
+};
+
 function App() {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
   const leaderboardDataRef = useRef<LeaderboardData[]>([]);
@@ -37,9 +45,9 @@ function App() {
       if (response.status !== 200)
         throw new Error(`Failed to fetch: ${response.status}`);
 
-      const newData: LeaderboardData[] = data.map((route: [string, number]) => ({
-        routeNumber: route[0],
-        speed: route[1]
+      const newData: LeaderboardData[] = (data as ApiLiveRouteSpeed[]).map((route) => ({
+        routeNumber: route.routeTag,
+        speed: route.liveSpeedKmh
       }));
 
       // Filter to find elements that are different from current leaderboard

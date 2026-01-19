@@ -97,3 +97,17 @@
 - **Changes**: Implemented `getRouteTitlesByTag(...)` with an in-memory TTL cache; appended `routeTitle` as the 3rd element in each returned tuple to keep index 0/1 backward compatible; marked the Phase 1 checkbox complete in `RALPH_TASK.md`.
 - **Verification**: Ran `npm run lint && npm run build` (pass).
 - **Next**: Phase 1 — define and implement a stable API response shape (objects) including `routeTitle` and metadata.
+
+### 2026-01-19 18:35:30
+**Session 7 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:35:32
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:35:32
+**Session 8 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:55:00
+- **Completed**: Phase 1 checkbox — replaced the `/api/ttc` tuple response with a stable object response including `routeTag`, `routeTitle`, `liveSpeedKmh`, `vehicleCount`, and `updatedAt` (ISO string).
+- **Changes**: Updated `api/ttc.ts` to return `LiveRouteSpeed[]`; updated `src/App.tsx` to consume the new response shape (minimal mapping to existing UI model).
+- **Next**: Phase 1 — deterministic API sorting to avoid UI jitter (tie-break by `routeTag`).
