@@ -151,3 +151,36 @@
 
 ### 2026-01-19 18:40:36
 **Session 11 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:42:33
+**Session 11 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:42:35
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:42:35
+**Session 12 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:43:57
+**Session 12 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:43:59
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:43:59
+**Session 13 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:44:30
+**Session 13 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:44:32
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:44:32
+**Session 14 started** (provider: cursor, model: auto)
+
+### 2026-01-19 18:47:48
+- **Completed**: Phase 2 checkbox — added `@vercel/kv` dependency + environment-variable wiring.
+- **Changes**: Added `api/kv.ts` helper for KV env detection/client creation; added `.env.example`; updated `.gitignore` to avoid committing `.env`; documented KV env vars in `README.md`; marked the Phase 2 checkbox complete in `RALPH_TASK.md`.
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 2 — implement sampling/aggregation strategy for rolling 24h averages.

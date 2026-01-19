@@ -47,6 +47,16 @@ The app will be available at `http://localhost:5173`
 npm run build
 ```
 
+### Optional: Configure Vercel KV (for 24h averages)
+
+Rolling 24-hour averages require persistence between serverless function invocations. This project uses **Vercel KV** (optional).
+
+- **Environment variables** (set in Vercel, or locally via a `.env` file):
+  - `KV_REST_API_URL`
+  - `KV_REST_API_TOKEN`
+  - `KV_REST_API_READ_ONLY_TOKEN` (optional)
+- **Template**: copy `.env.example` to `.env` and fill in values (never commit `.env`).
+
 ## 📊 How It Works
 
 1. **Data Fetching** — The serverless API (`/api/ttc`) fetches the TTC's live vehicle location feed
@@ -56,6 +66,7 @@ npm run build
    - **Current meaning**: instantaneous per-vehicle speed as reported by the feed; route speed is the simple arithmetic mean across active vehicles on that route (including stopped vehicles at 0 km/h)
    - **Validation rules**: missing/empty/non-numeric/negative `speedKmHr` values are excluded from averages; 0 is treated as valid (stopped vehicle). Routes with no valid speed samples are omitted to prevent `NaN`/`Infinity`.
 3. **24h Rolling Averages (persistence strategy)** — Rolling 24-hour averages will be computed from periodic samples and persisted in **Vercel KV** (optional) so serverless functions can retain history between invocations.
+   - If KV env vars are not set, the app should continue to serve live speeds (24h values will be unavailable).
 4. **Change Detection** — Only routes with updated speeds are added to the update queue
 5. **Queue Processing** — Updates are processed one at a time; if a position change occurs, the UI waits 1 second for the animation, otherwise it moves to the next update immediately
 6. **Ranking** — Routes are sorted by speed, fastest at the top

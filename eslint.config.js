@@ -12,12 +12,23 @@ export default defineConfig([
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
     ],
     languageOptions: {
       ecmaVersion: 2020,
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite],
+    languageOptions: {
       globals: globals.browser,
+    },
+  },
+  {
+    files: ['api/**/*.{ts,tsx}'],
+    languageOptions: {
+      // Serverless functions run on Node, but may still use web globals like `fetch`.
+      globals: { ...globals.browser, ...globals.node },
     },
   },
 ])
