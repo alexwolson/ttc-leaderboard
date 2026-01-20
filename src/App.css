@@ -21,6 +21,37 @@
   margin: 1rem;
 }
 
+.sort-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.sort-toggle-label {
+  font-size: 0.9rem;
+}
+
+.sort-toggle button {
+  font: inherit;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sort-toggle button.active {
+  border-color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sort-toggle button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .loading {
   color: red;
   font-family: monospace;

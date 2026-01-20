@@ -3,11 +3,12 @@ import './LeaderboardPosition.css'
 
 interface LeaderboardPosition {
     routeNumber: string;
-    routeName: string;
-    speed: number;
+    routeTitle: string;
+    liveSpeedKmh: number;
+    avg24hSpeedKmh: number | null;
 }
 
-function LeaderboardPosition({ routeNumber, routeName, speed }: LeaderboardPosition) {
+function LeaderboardPosition({ routeNumber, routeTitle, liveSpeedKmh, avg24hSpeedKmh }: LeaderboardPosition) {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
@@ -28,6 +29,8 @@ function LeaderboardPosition({ routeNumber, routeName, speed }: LeaderboardPosit
 
     // 50, 36
 
+    const avg24hText = avg24hSpeedKmh == null ? '—' : avg24hSpeedKmh.toFixed(1);
+
     return (
         <div className="leaderboard-position" ref={containerRef}>
             <div className="border">
@@ -38,10 +41,12 @@ function LeaderboardPosition({ routeNumber, routeName, speed }: LeaderboardPosit
                     |&nbsp;
                     <div className={`position-route-number ${routeNumber.startsWith('3') ? 'blue' : ''}`}>{routeNumber}</div>
                     &nbsp;-&nbsp;
-                    <div className="position-route-name">{routeName}</div>
+                    <div className="position-route-name">{routeTitle}</div>
                 </div>
                 <div className="right-side">
-                    <div className="position-speed">{speed.toFixed(1)} km/h</div>
+                    <div className="position-speed">
+                        live {liveSpeedKmh.toFixed(1)} / 24h {avg24hText} km/h
+                    </div>
                     &nbsp;|
                 </div>
             </div>

@@ -15,11 +15,49 @@ type ApiLiveRouteSpeed = {
   updatedAt: string;
 };
 
+type SortMetric = 'live' | 'avg24h';
+
+function getSortValue(item: LeaderboardData, metric: SortMetric): number {
+  const raw = metric === 'avg24h' ? item.avg24hSpeedKmh : item.liveSpeedKmh;
+  if (raw == null) return Number.NEGATIVE_INFINITY;
+  if (!Number.isFinite(raw)) return Number.NEGATIVE_INFINITY;
+  return raw;
+}
+
+function sortLeaderboard(data: LeaderboardData[], metric: SortMetric): LeaderboardData[] {
+  return [...data].sort((a, b) => {
+    const bValue = getSortValue(b, metric);
+    const aValue = getSortValue(a, metric);
+    if (bValue !== aValue) return bValue - aValue;
+    return a.routeNumber.localeCompare(b.routeNumber, undefined, { numeric: true });
+  });
+}
+
 function App() {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
   const [avg24hAvailable, setAvg24hAvailable] = useState<boolean | null>(null);
+  const [sortMetric, setSortMetric] = useState<SortMetric>('live');
   const leaderboardDataRef = useRef<LeaderboardData[]>([]);
   const leaderboardQueue = useRef(new LeaderboardQueue());
+  const sortMetricRef = useRef<SortMetric>('live');
+
+  useEffect(() => {
+    sortMetricRef.current = sortMetric;
+  }, [sortMetric]);
+
+  useEffect(() => {
+    // If the API indicates 24h averages are unavailable, prevent sorting by them.
+    if (avg24hAvailable === false && sortMetric === 'avg24h') {
+      setSortMetric('live');
+    }
+  }, [avg24hAvailable, sortMetric]);
+
+  useEffect(() => {
+    // Re-rank immediately when the selected metric changes.
+    const sorted = sortLeaderboard(leaderboardDataRef.current, sortMetric);
+    leaderboardDataRef.current = sorted;
+    setLeaderboardData(sorted);
+  }, [sortMetric]);
 
   const fetchLeaderboard = async () => {
     try {
@@ -99,7 +137,7 @@ function App() {
           newData = [...prevData, nextItem];
         }
 
-        const sortedData = [...newData].sort((a, b) => b.liveSpeedKmh - a.liveSpeedKmh);
+        const sortedData = sortLeaderboard(newData, sortMetricRef.current);
 
         // Check if order changed by comparing route order
         const orderChanged = sortedData.some((item, index) =>
@@ -141,6 +179,27 @@ function App() {
           <br></br>
           This site intends to show how slow it really is.
         </div>
+        <div className="sort-toggle" role="group" aria-label="Leaderboard ranking metric">
+          <span className="sort-toggle-label">Rank by:</span>
+          <button
+            type="button"
+            className={sortMetric === 'live' ? 'active' : ''}
+            aria-pressed={sortMetric === 'live'}
+            onClick={() => setSortMetric('live')}
+          >
+            Live
+          </button>
+          <button
+            type="button"
+            className={sortMetric === 'avg24h' ? 'active' : ''}
+            aria-pressed={sortMetric === 'avg24h'}
+            disabled={avg24hAvailable === false}
+            onClick={() => setSortMetric('avg24h')}
+            title={avg24hAvailable === false ? '24h averages unavailable (configure Vercel KV)' : undefined}
+          >
+            24h avg
+          </button>
+        </div>
         <div className="leaderboard">
           <AnimatePresence>
             {leaderboardData.length == 0 ? (
@@ -156,8 +215,9 @@ function App() {
                 >
                   <LeaderboardPosition
                     routeNumber={position.routeNumber}
-                    routeName={position.routeTitle ?? position.routeNumber}
-                    speed={position.liveSpeedKmh}
+                    routeTitle={position.routeTitle ?? position.routeNumber}
+                    liveSpeedKmh={position.liveSpeedKmh}
+                    avg24hSpeedKmh={position.avg24hSpeedKmh}
                   />
                 </motion.div>
               ))

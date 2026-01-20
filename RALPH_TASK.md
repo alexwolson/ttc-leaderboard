@@ -77,12 +77,12 @@ The task is complete when ALL of the following are true:
 
 - [x] Remove/replace the hardcoded `route_map` usage; UI uses `routeTitle` from the API response.
 - [x] Update frontend types (e.g., `LeaderboardData`) to support both `liveSpeedKmh` and `avg24hSpeedKmh` (and any needed metadata).
-- [ ] Update the leaderboard row UI (`LeaderboardPosition`) to display:
+- [x] Update the leaderboard row UI (`LeaderboardPosition`) to display:
   - route tag/number
   - route title
   - live speed (km/h)
   - 24h average (km/h) OR a clear placeholder if unavailable
-- [ ] Decide leaderboard ranking behavior and implement it:
+- [x] Decide leaderboard ranking behavior and implement it:
   - default sort metric (live vs 24h)
   - optional toggle to switch sort metric (recommended)
 - [ ] Update any explanatory copy (title/info text) so it’s no longer “streetcars only” and accurately describes live vs 24h metrics.

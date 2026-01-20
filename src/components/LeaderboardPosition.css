@@ -8,7 +8,7 @@
 .content {
     width: 100%;
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr auto;
 }
 
 .left-side {
@@ -21,6 +21,8 @@
 .right-side {
     display: flex;
     justify-content: right;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .position-route-number {

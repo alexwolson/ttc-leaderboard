@@ -274,3 +274,33 @@
 
 ### 2026-01-19 19:05:10
 **Error**: Max iterations (20) reached
+
+### 2026-01-19 20:28:11
+**Model selection** - pinned `auto`
+
+### 2026-01-19 20:28:11
+**Session 1 started** (provider: cursor, model: auto)
+
+### 2026-01-19 20:30:30
+- **Completed**: Phase 3 checkbox — updated the leaderboard row UI (`LeaderboardPosition`) to display route tag/number, route title, live speed (km/h), and 24h average (km/h) or a clear placeholder when unavailable.
+- **Changes**: Updated `src/components/LeaderboardPosition.tsx` + `src/components/LeaderboardPosition.css`; updated `src/App.tsx` to pass `routeTitle`, `liveSpeedKmh`, and `avg24hSpeedKmh`.
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 3 — decide leaderboard ranking behavior and implement it (default metric + optional toggle).
+
+### 2026-01-19 20:30:30
+**Session 1 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 20:30:24
+**Session 1 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 20:30:26
+**Model selection** - pinned `auto`
+
+### 2026-01-19 20:30:26
+**Session 2 started** (provider: cursor, model: auto)
+
+### 2026-01-19 20:33:15
+- **Completed**: Phase 3 checkbox — implemented leaderboard ranking behavior with a toggle to sort by live speed vs 24h average.
+- **Changes**: Updated `src/App.tsx` to track a ranking metric, re-sort on toggle, and sort updates deterministically; added minimal toggle styling in `src/App.css`; marked the Phase 3 ranking checkbox complete in `RALPH_TASK.md`.
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 3 — update explanatory copy (no longer “streetcars only”) and clarify live vs 24h metrics.
