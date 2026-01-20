@@ -16,6 +16,21 @@ type ApiLiveRouteSpeed = {
 };
 
 type SortMetric = 'live' | 'avg24h';
+type TransitType = 'all' | 'bus' | 'streetcar' | 'subway';
+
+function getTransitType(routeNumber: string): 'bus' | 'streetcar' | 'subway' {
+  // TTC route numbering conventions:
+  // - Streetcars: 5xx routes (501, 504, 505, 506, 509, 510, 511, 512)
+  // - Subway/RT: Lines 1-4 (represented as "1", "2", "3", "4")
+  // - Buses: All other routes
+  if (routeNumber.startsWith('5') && routeNumber.length === 3) {
+    return 'streetcar';
+  }
+  if (routeNumber.length === 1 && ['1', '2', '3', '4'].includes(routeNumber)) {
+    return 'subway';
+  }
+  return 'bus';
+}
 
 // Jitter guard:
 // - The UI displays speeds to 1 decimal place.
@@ -59,6 +74,7 @@ function App() {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
   const [avg24hAvailable, setAvg24hAvailable] = useState<boolean | null>(null);
   const [sortMetric, setSortMetric] = useState<SortMetric>('live');
+  const [transitFilter, setTransitFilter] = useState<TransitType>('all');
   const [hasLoaded, setHasLoaded] = useState(false);
   const [isEmptyApi, setIsEmptyApi] = useState(false);
   const leaderboardDataRef = useRef<LeaderboardData[]>([]);
@@ -125,6 +141,7 @@ function App() {
         avg24hSpeedKmh: route.avg24hSpeedKmh,
         vehicleCount: route.vehicleCount,
         updatedAt: route.updatedAt,
+        transitType: getTransitType(route.routeTag),
       }));
 
       // Filter to find elements that are different from current leaderboard
@@ -259,14 +276,58 @@ function App() {
             24h avg
           </button>
         </div>
+        <div className="sort-toggle" role="group" aria-label="Filter by transit type">
+          <span className="sort-toggle-label">Filter:</span>
+          <button
+            type="button"
+            className={transitFilter === 'all' ? 'active' : ''}
+            aria-pressed={transitFilter === 'all'}
+            onClick={() => setTransitFilter('all')}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            className={transitFilter === 'bus' ? 'active' : ''}
+            aria-pressed={transitFilter === 'bus'}
+            onClick={() => setTransitFilter('bus')}
+          >
+            Bus
+          </button>
+          <button
+            type="button"
+            className={transitFilter === 'streetcar' ? 'active' : ''}
+            aria-pressed={transitFilter === 'streetcar'}
+            onClick={() => setTransitFilter('streetcar')}
+          >
+            Streetcar
+          </button>
+          <button
+            type="button"
+            className={transitFilter === 'subway' ? 'active' : ''}
+            aria-pressed={transitFilter === 'subway'}
+            onClick={() => setTransitFilter('subway')}
+          >
+            Subway
+          </button>
+        </div>
         <div className="leaderboard">
           <AnimatePresence>
-            {!hasLoaded || (leaderboardData.length === 0 && !isEmptyApi) ? (
-              <div className="loading">Loading...</div>
-            ) : leaderboardData.length === 0 ? (
-              <div className="loading">No routes with speed data right now.</div>
-            ) : (
-              leaderboardData.map((position) => (
+            {(() => {
+              if (!hasLoaded || (leaderboardData.length === 0 && !isEmptyApi)) {
+                return <div className="loading">Loading...</div>;
+              }
+
+              const filteredData = leaderboardData.filter((position) => 
+                transitFilter === 'all' || position.transitType === transitFilter
+              );
+
+              if (filteredData.length === 0) {
+                const filterLabel = transitFilter === 'all' ? '' : `${transitFilter} `;
+                return <div className="loading">No {filterLabel}routes with speed data right now.</div>;
+              }
+
+              return filteredData.map((position) => (
                 <motion.div
                   key={position.routeNumber}
                   layout
@@ -279,10 +340,11 @@ function App() {
                     routeTitle={position.routeTitle?.trim().length ? position.routeTitle : position.routeNumber}
                     liveSpeedKmh={position.liveSpeedKmh}
                     avg24hSpeedKmh={position.avg24hSpeedKmh}
+                    transitType={position.transitType}
                   />
                 </motion.div>
-              ))
-            )}
+              ));
+            })()}
           </AnimatePresence>
         </div>
         <div className="info">

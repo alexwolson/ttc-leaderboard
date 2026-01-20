@@ -6,6 +6,7 @@ interface LeaderboardPosition {
     routeTitle: string;
     liveSpeedKmh: number;
     avg24hSpeedKmh: number | null;
+    transitType: 'bus' | 'streetcar' | 'subway';
 }
 
 function formatSpeedKmh(value: number | null | undefined): string {
@@ -14,7 +15,7 @@ function formatSpeedKmh(value: number | null | undefined): string {
     return value.toFixed(1);
 }
 
-function LeaderboardPosition({ routeNumber, routeTitle, liveSpeedKmh, avg24hSpeedKmh }: LeaderboardPosition) {
+function LeaderboardPosition({ routeNumber, routeTitle, liveSpeedKmh, avg24hSpeedKmh, transitType }: LeaderboardPosition) {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
@@ -39,6 +40,11 @@ function LeaderboardPosition({ routeNumber, routeTitle, liveSpeedKmh, avg24hSpee
     const liveText = formatSpeedKmh(liveSpeedKmh);
     const avg24hText = formatSpeedKmh(avg24hSpeedKmh);
 
+    // Color coding by transit type
+    const colorClass = transitType === 'streetcar' ? 'red' : 
+                       transitType === 'subway' ? 'blue' : 
+                       'green'; // bus
+
     return (
         <div className="leaderboard-position" ref={containerRef}>
             <div className="border">
@@ -47,7 +53,7 @@ function LeaderboardPosition({ routeNumber, routeTitle, liveSpeedKmh, avg24hSpee
             <div className="content" style={{ width: `${borderWidth}ch` }}>
                 <div className="left-side">
                     |&nbsp;
-                    <div className={`position-route-number ${routeNumber.startsWith('3') ? 'blue' : ''}`}>{routeNumber}</div>
+                    <div className={`position-route-number ${colorClass}`}>{routeNumber}</div>
                     &nbsp;-&nbsp;
                     <div className="position-route-name">{displayTitle}</div>
                 </div>
