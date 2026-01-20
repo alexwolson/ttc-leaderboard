@@ -65,6 +65,7 @@ The cache file contains:
 ```json
 {
   "startTime": "2026-01-20T18:30:00.000Z",
+  "startTimeMs": 1737399000000,
   "records": [
     {
       "timestamp": "2026-01-20T18:30:00.000Z",

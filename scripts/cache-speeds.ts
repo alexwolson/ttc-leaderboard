@@ -244,15 +244,32 @@ async function main(): Promise<void> {
     console.log('=================================================\n');
     console.log('Press Ctrl+C to stop collection\n');
 
-    // Load existing cache to show stats and get start time
-    const cache = loadCache();
+    // Load existing cache to show stats
+    let cache = loadCache();
     printStats(cache);
 
     // Collect first sample immediately
     await collectSample();
 
-    // Set up interval for subsequent collections
-    const interval = setInterval(async () => {
+    // Reload cache so that startTimeMs matches the persisted cache created/updated by collectSample
+    cache = loadCache();
+
+    // Flag to control the collection loop
+    let isRunning = true;
+
+    // Handle graceful shutdown
+    process.on('SIGINT', () => {
+        console.log('\n\nStopping data collection...');
+        isRunning = false;
+    });
+
+    // Serialized collection loop to prevent race conditions
+    while (isRunning) {
+        // Wait for the next collection interval
+        await new Promise(resolve => setTimeout(resolve, FETCH_INTERVAL_MS));
+
+        if (!isRunning) break;
+
         await collectSample();
         
         // Check if we've reached the target duration
@@ -264,19 +281,14 @@ async function main(): Promise<void> {
             console.log(`\nTarget duration of ${durationDays} days reached.`);
             const finalCache = loadCache();
             printStats(finalCache);
-            clearInterval(interval);
             process.exit(0);
         }
-    }, FETCH_INTERVAL_MS);
+    }
 
-    // Handle graceful shutdown
-    process.on('SIGINT', () => {
-        console.log('\n\nStopping data collection...');
-        clearInterval(interval);
-        const cache = loadCache();
-        printStats(cache);
-        process.exit(0);
-    });
+    // If we exit the loop due to SIGINT, show final stats
+    const finalCache = loadCache();
+    printStats(finalCache);
+    process.exit(0);
 }
 
 // Run the script
