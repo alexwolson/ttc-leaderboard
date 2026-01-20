@@ -271,16 +271,21 @@ function App() {
         </div>
         <div className="leaderboard">
           <AnimatePresence>
-            {!hasLoaded || (leaderboardData.length === 0 && !isEmptyApi) ? (
-              <div className="loading">Loading...</div>
-            ) : leaderboardData.filter((position) => 
+            {(() => {
+              if (!hasLoaded || (leaderboardData.length === 0 && !isEmptyApi)) {
+                return <div className="loading">Loading...</div>;
+              }
+
+              const filteredData = leaderboardData.filter((position) => 
                 transitFilter === 'all' || getTransitType(position.routeNumber) === transitFilter
-              ).length === 0 ? (
-              <div className="loading">No {transitFilter === 'all' ? '' : transitFilter + ' '}routes with speed data right now.</div>
-            ) : (
-              leaderboardData
-                .filter((position) => transitFilter === 'all' || getTransitType(position.routeNumber) === transitFilter)
-                .map((position) => (
+              );
+
+              if (filteredData.length === 0) {
+                const filterLabel = transitFilter === 'all' ? '' : `${transitFilter} `;
+                return <div className="loading">No {filterLabel}routes with speed data right now.</div>;
+              }
+
+              return filteredData.map((position) => (
                 <motion.div
                   key={position.routeNumber}
                   layout
@@ -296,8 +301,8 @@ function App() {
                     transitType={getTransitType(position.routeNumber)}
                   />
                 </motion.div>
-              ))
-            )}
+              ));
+            })()}
           </AnimatePresence>
         </div>
         <div className="info">
