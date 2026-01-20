@@ -1,12 +1,12 @@
-# TTC Streetcar Leaderboard
+# TTC Route Speed Leaderboard
 
 Recently, Toronto opened Line 6, the first new rapid transit line in the city in over 20 years. The route was advertised with a ~30 minute end-to-end journey time, but on opening day, it took nearly an hour.
 
-This issue with speed is not endemic to the LRT, and has been known about for years, especially with the city's streetcar network. 
+This issue with speed is not endemic to the LRT, and has been known about for years across the TTC's network, especially with the city's streetcar routes. 
 
-This website is intended to be a social commentary on the state of the TTC's streetcar network, in an attempt to raise awareness and hopefully spur some action.
+This website is intended to be a social commentary on the state of TTC transit speeds across all routes, in an attempt to raise awareness and hopefully spur some action.
 
-Many people blame the lack of TSP (transit signal priority), but there are many other factors that contribute to slow streetcars, including stop spacing, arbitrary speed limits, and mixed traffic.
+Many people blame the lack of TSP (transit signal priority), but there are many other factors that contribute to slow transit, including stop spacing, arbitrary speed limits, and mixed traffic.
 
 ## 🛠️ Tech Stack
 
