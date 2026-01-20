@@ -1,6 +1,10 @@
 export interface LeaderboardData {
     routeNumber: string;
-    speed: number;
+    routeTitle: string | null;
+    liveSpeedKmh: number;
+    avg24hSpeedKmh: number | null;
+    vehicleCount: number;
+    updatedAt: string; // ISO string
 }
 
 export class LeaderboardQueue {
@@ -19,8 +23,9 @@ export class LeaderboardQueue {
             );
 
             if (existingIndex !== -1) {
-                // Update existing item's speed
-                this.items[existingIndex].speed = item.speed;
+                // Replace the existing item so all fields stay in sync
+                // (live speed, 24h average, titles, counts, timestamps, etc.).
+                this.items[existingIndex] = item;
             } else {
                 // Append new item
                 this.items.push(item);

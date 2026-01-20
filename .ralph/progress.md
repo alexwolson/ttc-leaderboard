@@ -241,3 +241,18 @@
 - **Completed**: Phase 3 checkbox — removed the hardcoded `route_map`; UI now uses `routeTitle` returned by `/api/ttc`.
 - **Changes**: Updated `src/App.tsx` to track `routeTag -> routeTitle` from the API and pass it through to `LeaderboardPosition`.
 - **Next**: Phase 3 — update frontend types to support both live and 24h average metrics.
+
+### 2026-01-19 19:01:34
+**Session 18 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 19:01:36
+**Model selection** - pinned `auto`
+
+### 2026-01-19 19:01:36
+**Session 19 started** (provider: cursor, model: auto)
+
+### 2026-01-19 19:04:14
+- **Completed**: Phase 3 checkbox — updated frontend types to support both `liveSpeedKmh` and `avg24hSpeedKmh` (plus route metadata).
+- **Changes**: Expanded `LeaderboardData` in `src/LeaderboardQueue.ts`; updated `src/App.tsx` to map/store both metrics, compare changes across live+24h+title, and keep sorting/display based on `liveSpeedKmh`.
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 3 — update `LeaderboardPosition` to display both live and 24h values (and placeholder when unavailable).

@@ -9,8 +9,8 @@ type ApiLiveRouteSpeed = {
   routeTag: string;
   routeTitle: string | null;
   liveSpeedKmh: number;
-  avg24hAvailable?: boolean;
-  avg24hSpeedKmh?: number | null;
+  avg24hAvailable: boolean;
+  avg24hSpeedKmh: number | null;
   vehicleCount: number;
   updatedAt: string;
 };
@@ -20,9 +20,6 @@ function App() {
   const [avg24hAvailable, setAvg24hAvailable] = useState<boolean | null>(null);
   const leaderboardDataRef = useRef<LeaderboardData[]>([]);
   const leaderboardQueue = useRef(new LeaderboardQueue());
-  const routeTitlesByTagRef = useRef<Record<string, string | null>>({});
-  // Used only to trigger a rerender when route titles change.
-  const [, setRouteTitlesRevision] = useState(0);
 
   const fetchLeaderboard = async () => {
     try {
@@ -41,21 +38,13 @@ function App() {
         setAvg24hAvailable(null);
       }
 
-      let titlesChanged = false;
-      for (const route of apiRoutes) {
-        const prevTitle = routeTitlesByTagRef.current[route.routeTag];
-        if (prevTitle !== route.routeTitle) {
-          routeTitlesByTagRef.current[route.routeTag] = route.routeTitle;
-          titlesChanged = true;
-        }
-      }
-      if (titlesChanged) {
-        setRouteTitlesRevision((x) => x + 1);
-      }
-
       const newData: LeaderboardData[] = apiRoutes.map((route) => ({
         routeNumber: route.routeTag,
-        speed: route.liveSpeedKmh
+        routeTitle: route.routeTitle,
+        liveSpeedKmh: route.liveSpeedKmh,
+        avg24hSpeedKmh: route.avg24hSpeedKmh,
+        vehicleCount: route.vehicleCount,
+        updatedAt: route.updatedAt,
       }));
 
       // Filter to find elements that are different from current leaderboard
@@ -63,8 +52,19 @@ function App() {
         const existingItem = leaderboardDataRef.current.find(
           (item) => item.routeNumber === newItem.routeNumber
         );
-        // Include if: doesn't exist in current data OR speed changed
-        return !existingItem || existingItem.speed !== newItem.speed;
+        // Include if:
+        // - doesn't exist in current data OR
+        // - live speed changed OR
+        // - 24h average changed OR
+        // - route title changed (rare, but we should reflect it)
+        //
+        // Note: we intentionally ignore `updatedAt` so we don't enqueue every route on every poll.
+        return (
+          !existingItem ||
+          existingItem.liveSpeedKmh !== newItem.liveSpeedKmh ||
+          existingItem.avg24hSpeedKmh !== newItem.avg24hSpeedKmh ||
+          existingItem.routeTitle !== newItem.routeTitle
+        );
       });
 
       // Add changed items to the queue
@@ -99,7 +99,7 @@ function App() {
           newData = [...prevData, nextItem];
         }
 
-        const sortedData = [...newData].sort((a, b) => b.speed - a.speed);
+        const sortedData = [...newData].sort((a, b) => b.liveSpeedKmh - a.liveSpeedKmh);
 
         // Check if order changed by comparing route order
         const orderChanged = sortedData.some((item, index) =>
@@ -156,8 +156,8 @@ function App() {
                 >
                   <LeaderboardPosition
                     routeNumber={position.routeNumber}
-                    routeName={routeTitlesByTagRef.current[position.routeNumber] ?? position.routeNumber}
-                    speed={position.speed}
+                    routeName={position.routeTitle ?? position.routeNumber}
+                    speed={position.liveSpeedKmh}
                   />
                 </motion.div>
               ))
