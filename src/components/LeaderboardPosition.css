@@ -26,7 +26,7 @@
 }
 
 .position-route-number {
-    /* Default color is set by transit type modifiers below */
+    /* Color is set by transit type modifiers below (red/blue/green) */
 }
 
 .position-route-number.blue {
