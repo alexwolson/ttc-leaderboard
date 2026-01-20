@@ -228,3 +228,16 @@
 - **Changes**: Updated `api/avg24h.ts` to cap per-route sample history, store samples in a compact `[t, v]` tuple format (while still reading legacy `{ t, v }`), and chunk KV `mget`/write operations (including pipelines) to avoid oversized KV requests; also removed an O(n^2) lookup path by indexing live routes with a `Map`.
 - **Verification**: Ran `npm run lint && npm run build` (pass).
 - **Next**: Phase 3 — update the UI to use `routeTitle` from the API and display live vs 24h metrics.
+### 2026-01-19 18:59:28
+**Session 17 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 18:59:30
+**Model selection** - pinned `auto`
+
+### 2026-01-19 18:59:30
+**Session 18 started** (provider: cursor, model: auto)
+
+### 2026-01-19 19:05:00
+- **Completed**: Phase 3 checkbox — removed the hardcoded `route_map`; UI now uses `routeTitle` returned by `/api/ttc`.
+- **Changes**: Updated `src/App.tsx` to track `routeTag -> routeTitle` from the API and pass it through to `LeaderboardPosition`.
+- **Next**: Phase 3 — update frontend types to support both live and 24h average metrics.

@@ -20,25 +20,9 @@ function App() {
   const [avg24hAvailable, setAvg24hAvailable] = useState<boolean | null>(null);
   const leaderboardDataRef = useRef<LeaderboardData[]>([]);
   const leaderboardQueue = useRef(new LeaderboardQueue());
-  const route_map: Record<string, string> = {
-    "501": "Queen",
-    "503": "Kingston",
-    "504": "King",
-    "505": "Dundas",
-    "506": "Carlton",
-    "507": "Long Branch",
-    "508": "Lake Shore",
-    "509": "Harbourfront",
-    "510": "Spadina",
-    "511": "Bathurst",
-    "512": "St. Clair",
-    "301": "Queen",
-    "304": "King",
-    "305": "Dundas",
-    "306": "Carleton",
-    "310": "Spadina",
-    "312": "St. Clair"
-  };
+  const routeTitlesByTagRef = useRef<Record<string, string | null>>({});
+  // Used only to trigger a rerender when route titles change.
+  const [, setRouteTitlesRevision] = useState(0);
 
   const fetchLeaderboard = async () => {
     try {
@@ -55,6 +39,18 @@ function App() {
         setAvg24hAvailable(Boolean(apiRoutes[0].avg24hAvailable));
       } else {
         setAvg24hAvailable(null);
+      }
+
+      let titlesChanged = false;
+      for (const route of apiRoutes) {
+        const prevTitle = routeTitlesByTagRef.current[route.routeTag];
+        if (prevTitle !== route.routeTitle) {
+          routeTitlesByTagRef.current[route.routeTag] = route.routeTitle;
+          titlesChanged = true;
+        }
+      }
+      if (titlesChanged) {
+        setRouteTitlesRevision((x) => x + 1);
       }
 
       const newData: LeaderboardData[] = apiRoutes.map((route) => ({
@@ -160,7 +156,7 @@ function App() {
                 >
                   <LeaderboardPosition
                     routeNumber={position.routeNumber}
-                    routeName={route_map[position.routeNumber]}
+                    routeName={routeTitlesByTagRef.current[position.routeNumber] ?? position.routeNumber}
                     speed={position.speed}
                   />
                 </motion.div>

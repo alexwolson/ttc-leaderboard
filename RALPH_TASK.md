@@ -75,7 +75,7 @@ The task is complete when ALL of the following are true:
 
 ### Phase 3 — Frontend: display all routes + 24h averages
 
-- [ ] Remove/replace the hardcoded `route_map` usage; UI uses `routeTitle` from the API response.
+- [x] Remove/replace the hardcoded `route_map` usage; UI uses `routeTitle` from the API response.
 - [ ] Update frontend types (e.g., `LeaderboardData`) to support both `liveSpeedKmh` and `avg24hSpeedKmh` (and any needed metadata).
 - [ ] Update the leaderboard row UI (`LeaderboardPosition`) to display:
   - route tag/number
