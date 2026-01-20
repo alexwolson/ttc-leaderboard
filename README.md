@@ -57,6 +57,20 @@ Rolling 24-hour averages require persistence between serverless function invocat
   - `KV_REST_API_READ_ONLY_TOKEN` (optional)
 - **Template**: copy `.env.example` to `.env` and fill in values (never commit `.env`).
 
+### Cache Speed Data Locally
+
+You can collect TTC speed data over an extended period (e.g., 1 month) for analysis:
+
+```bash
+# Run with default 30-day collection period
+npm run cache-speeds
+
+# Or specify a custom duration in days
+npm run cache-speeds 7
+```
+
+Data is saved to `speed-cache/speed-data.json`. See [scripts/README.md](scripts/README.md) for details.
+
 ## 📊 How It Works
 
 1. **Data Fetching** — The serverless API (`/api/ttc`) fetches the TTC's live vehicle location feed
