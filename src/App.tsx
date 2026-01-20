@@ -169,7 +169,7 @@ function App() {
     <>
       <div className="wrapper">
         <div className="title">
-          TTC STREETCARS LIVE LEADERBOARD
+          TTC ROUTE SPEED LEADERBOARD
         </div>
         <div className="image-container">
           <img id="streetcar-image" src="https://live.staticflickr.com/7791/17390893711_bf1b2131ad_h.jpg" alt="streetcar pulled by horse" />
@@ -177,7 +177,7 @@ function App() {
         <div className="information">
           Recently the TTC has been under a lot of criticism for <a href="https://www.blogto.com/city/2024/08/toronto-ttc-streetcars-slowest-world/" target="_blank">slow service</a>.
           <br></br>
-          This site intends to show how slow it really is.
+          This site shows estimated speeds (km/h) for TTC routes using vehicle location data.
         </div>
         <div className="sort-toggle" role="group" aria-label="Leaderboard ranking metric">
           <span className="sort-toggle-label">Rank by:</span>
@@ -225,7 +225,9 @@ function App() {
           </AnimatePresence>
         </div>
         <div className="info">
-          This leaderboard is live and shows the average speed<br></br>of all streetcars on a route with ~30 second delay.
+          Live = current average speed for vehicles reporting speed on each route.
+          <br></br>
+          24h avg = rolling average over the last 24 hours (when available).
           {avg24hAvailable === false ? (
             <>
               <br></br>

@@ -304,3 +304,18 @@
 - **Changes**: Updated `src/App.tsx` to track a ranking metric, re-sort on toggle, and sort updates deterministically; added minimal toggle styling in `src/App.css`; marked the Phase 3 ranking checkbox complete in `RALPH_TASK.md`.
 - **Verification**: Ran `npm run lint && npm run build` (pass).
 - **Next**: Phase 3 — update explanatory copy (no longer “streetcars only”) and clarify live vs 24h metrics.
+
+### 2026-01-19 20:33:52
+**Session 2 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 20:33:54
+**Model selection** - pinned `auto`
+
+### 2026-01-19 20:33:54
+**Session 3 started** (provider: cursor, model: auto)
+
+### 2026-01-19 20:36:30
+- **Completed**: Phase 3 checkbox — updated UI explanatory copy to reflect all TTC routes (not streetcars-only) and clarify Live vs 24h average metrics.
+- **Changes**: Updated title/info text in `src/App.tsx`; marked the Phase 3 copy checkbox complete in `RALPH_TASK.md`.
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 3 — ensure UI resilience (null 24h, missing titles, empty API).
