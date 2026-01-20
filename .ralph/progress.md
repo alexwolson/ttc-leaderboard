@@ -319,3 +319,18 @@
 - **Changes**: Updated title/info text in `src/App.tsx`; marked the Phase 3 copy checkbox complete in `RALPH_TASK.md`.
 - **Verification**: Ran `npm run lint && npm run build` (pass).
 - **Next**: Phase 3 — ensure UI resilience (null 24h, missing titles, empty API).
+
+### 2026-01-19 20:35:33
+**Session 3 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 20:35:35
+**Model selection** - pinned `auto`
+
+### 2026-01-19 20:35:35
+**Session 4 started** (provider: cursor, model: auto)
+
+### 2026-01-19 20:42:00
+- **Completed**: Phase 3 checkbox — ensured UI resilience (null 24h values, missing/empty route titles, and empty API responses).
+- **Changes**: Updated `src/App.tsx` to normalize empty/whitespace titles, avoid blank names, distinguish “Loading” vs “No data”, and clear stale routes if the API returns an empty list; updated `src/components/LeaderboardPosition.tsx` to format speeds safely (no `toFixed` on non-finite/null) and fall back for empty titles.
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 4 — reduce client jitter and ensure the update queue logic behaves correctly with many routes.

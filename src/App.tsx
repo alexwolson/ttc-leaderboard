@@ -37,6 +37,8 @@ function App() {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
   const [avg24hAvailable, setAvg24hAvailable] = useState<boolean | null>(null);
   const [sortMetric, setSortMetric] = useState<SortMetric>('live');
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [isEmptyApi, setIsEmptyApi] = useState(false);
   const leaderboardDataRef = useRef<LeaderboardData[]>([]);
   const leaderboardQueue = useRef(new LeaderboardQueue());
   const sortMetricRef = useRef<SortMetric>('live');
@@ -67,8 +69,24 @@ function App() {
       if (response.status !== 200)
         throw new Error(`Failed to fetch: ${response.status}`);
 
-      const apiRoutes = data as ApiLiveRouteSpeed[];
-      if (Array.isArray(apiRoutes) && apiRoutes.length > 0 && typeof apiRoutes[0]?.avg24hAvailable === 'boolean') {
+      const apiRoutes: ApiLiveRouteSpeed[] = Array.isArray(data) ? (data as ApiLiveRouteSpeed[]) : [];
+      setHasLoaded(true);
+
+      if (apiRoutes.length === 0) {
+        setIsEmptyApi(true);
+        setAvg24hAvailable(null);
+
+        // If the API returns an empty list, clear existing/stale data so the UI
+        // doesn't keep showing routes that are no longer present.
+        leaderboardQueue.current.clear();
+        leaderboardDataRef.current = [];
+        setLeaderboardData([]);
+        return;
+      }
+
+      setIsEmptyApi(false);
+
+      if (typeof apiRoutes[0]?.avg24hAvailable === 'boolean') {
         // The API explicitly reports whether KV-backed 24h averages are available.
         // If unavailable, we should indicate that in the UI (while still showing live speeds).
         setAvg24hAvailable(Boolean(apiRoutes[0].avg24hAvailable));
@@ -78,7 +96,7 @@ function App() {
 
       const newData: LeaderboardData[] = apiRoutes.map((route) => ({
         routeNumber: route.routeTag,
-        routeTitle: route.routeTitle,
+        routeTitle: route.routeTitle && route.routeTitle.trim().length > 0 ? route.routeTitle : null,
         liveSpeedKmh: route.liveSpeedKmh,
         avg24hSpeedKmh: route.avg24hSpeedKmh,
         vehicleCount: route.vehicleCount,
@@ -202,8 +220,10 @@ function App() {
         </div>
         <div className="leaderboard">
           <AnimatePresence>
-            {leaderboardData.length == 0 ? (
+            {!hasLoaded || (leaderboardData.length === 0 && !isEmptyApi) ? (
               <div className="loading">Loading...</div>
+            ) : leaderboardData.length === 0 ? (
+              <div className="loading">No routes with speed data right now.</div>
             ) : (
               leaderboardData.map((position) => (
                 <motion.div
@@ -215,7 +235,7 @@ function App() {
                 >
                   <LeaderboardPosition
                     routeNumber={position.routeNumber}
-                    routeTitle={position.routeTitle ?? position.routeNumber}
+                    routeTitle={position.routeTitle?.trim().length ? position.routeTitle : position.routeNumber}
                     liveSpeedKmh={position.liveSpeedKmh}
                     avg24hSpeedKmh={position.avg24hSpeedKmh}
                   />

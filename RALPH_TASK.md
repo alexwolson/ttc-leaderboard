@@ -86,7 +86,7 @@ The task is complete when ALL of the following are true:
   - default sort metric (live vs 24h)
   - optional toggle to switch sort metric (recommended)
 - [x] Update any explanatory copy (title/info text) so it’s no longer “streetcars only” and accurately describes live vs 24h metrics.
-- [ ] Ensure UI is resilient:
+- [x] Ensure UI is resilient:
   - does not crash when `avg24hSpeedKmh` is null
   - handles unknown/empty route titles gracefully
   - continues working if API returns an empty list
