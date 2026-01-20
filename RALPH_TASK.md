@@ -93,7 +93,7 @@ The task is complete when ALL of the following are true:
 
 ### Phase 4 — Performance, correctness, and polish
 
-- [ ] Avoid unnecessary client jitter (reduce needless reorders / excessive animation churn) when many routes update frequently.
+- [x] Avoid unnecessary client jitter (reduce needless reorders / excessive animation churn) when many routes update frequently.
 - [ ] Ensure the update queue logic still behaves correctly with a larger set of routes (no runaway growth, no starvation).
 - [ ] Add minimal inline documentation in the API and UI about assumptions and calculation methods.
 

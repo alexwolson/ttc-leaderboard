@@ -334,3 +334,27 @@
 - **Changes**: Updated `src/App.tsx` to normalize empty/whitespace titles, avoid blank names, distinguish “Loading” vs “No data”, and clear stale routes if the API returns an empty list; updated `src/components/LeaderboardPosition.tsx` to format speeds safely (no `toFixed` on non-finite/null) and fall back for empty titles.
 - **Verification**: Ran `npm run lint && npm run build` (pass).
 - **Next**: Phase 4 — reduce client jitter and ensure the update queue logic behaves correctly with many routes.
+
+### 2026-01-19 20:37:59
+**Session 4 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 20:38:01
+**Model selection** - pinned `auto`
+
+### 2026-01-19 20:38:01
+**Session 5 started** (provider: cursor, model: auto)
+
+### 2026-01-19 20:39:33
+**Session 5 ended** - ↻ ROTATE (restart cursor, model: auto)
+
+### 2026-01-19 20:39:35
+**Model selection** - pinned `auto`
+
+### 2026-01-19 20:39:35
+**Session 6 started** (provider: cursor, model: auto)
+
+### 2026-01-20 00:20:00
+- **Completed**: Phase 4 checkbox — reduced unnecessary client jitter (fewer needless reorders / less animation churn) when many routes update frequently.
+- **Changes**: Updated `src/App.tsx` to throttle list re-ranking (`RERANK_INTERVAL_MS`) so values update immediately while reorders happen at a controlled cadence (and still re-rank immediately on metric toggle).
+- **Verification**: Ran `npm run lint && npm run build` (pass).
+- **Next**: Phase 4 — ensure the update queue logic behaves correctly with a larger set of routes (no runaway growth, no starvation).

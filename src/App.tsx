@@ -17,11 +17,33 @@ type ApiLiveRouteSpeed = {
 
 type SortMetric = 'live' | 'avg24h';
 
+// Jitter guard:
+// - The UI displays speeds to 1 decimal place.
+// - Sorting/updating on raw floating-point values can cause frequent swaps and layout churn
+//   even when the displayed numbers are unchanged.
+// - To reduce needless reorders, we bucket speeds to the displayed precision for both
+//   sorting and change detection.
+const SPEED_DISPLAY_DECIMALS = 1;
+const SPEED_COMPARE_FACTOR = 10 ** SPEED_DISPLAY_DECIMALS;
+
+// Additional jitter guard:
+// - With many routes, tiny changes can reshuffle the list every poll, creating constant
+//   layout animations and visual churn.
+// - We still update values immediately, but we only re-rank the list at most once per
+//   interval (and always on metric toggle).
+const RERANK_INTERVAL_MS = 2500;
+
+function speedToDisplayBucket(value: number | null | undefined): number | null {
+  if (value == null) return null;
+  if (!Number.isFinite(value)) return null;
+  return Math.round(value * SPEED_COMPARE_FACTOR) / SPEED_COMPARE_FACTOR;
+}
+
 function getSortValue(item: LeaderboardData, metric: SortMetric): number {
   const raw = metric === 'avg24h' ? item.avg24hSpeedKmh : item.liveSpeedKmh;
-  if (raw == null) return Number.NEGATIVE_INFINITY;
-  if (!Number.isFinite(raw)) return Number.NEGATIVE_INFINITY;
-  return raw;
+  const bucketed = speedToDisplayBucket(raw);
+  if (bucketed == null) return Number.NEGATIVE_INFINITY;
+  return bucketed;
 }
 
 function sortLeaderboard(data: LeaderboardData[], metric: SortMetric): LeaderboardData[] {
@@ -42,6 +64,7 @@ function App() {
   const leaderboardDataRef = useRef<LeaderboardData[]>([]);
   const leaderboardQueue = useRef(new LeaderboardQueue());
   const sortMetricRef = useRef<SortMetric>('live');
+  const lastRerankAtRef = useRef<number>(0);
 
   useEffect(() => {
     sortMetricRef.current = sortMetric;
@@ -59,6 +82,7 @@ function App() {
     const sorted = sortLeaderboard(leaderboardDataRef.current, sortMetric);
     leaderboardDataRef.current = sorted;
     setLeaderboardData(sorted);
+    lastRerankAtRef.current = Date.now();
   }, [sortMetric]);
 
   const fetchLeaderboard = async () => {
@@ -108,17 +132,22 @@ function App() {
         const existingItem = leaderboardDataRef.current.find(
           (item) => item.routeNumber === newItem.routeNumber
         );
+        const existingLiveBucket = speedToDisplayBucket(existingItem?.liveSpeedKmh);
+        const newLiveBucket = speedToDisplayBucket(newItem.liveSpeedKmh);
+        const existingAvg24hBucket = speedToDisplayBucket(existingItem?.avg24hSpeedKmh);
+        const newAvg24hBucket = speedToDisplayBucket(newItem.avg24hSpeedKmh);
+
         // Include if:
         // - doesn't exist in current data OR
-        // - live speed changed OR
-        // - 24h average changed OR
+        // - live speed (as displayed) changed OR
+        // - 24h average (as displayed) changed OR
         // - route title changed (rare, but we should reflect it)
         //
         // Note: we intentionally ignore `updatedAt` so we don't enqueue every route on every poll.
         return (
           !existingItem ||
-          existingItem.liveSpeedKmh !== newItem.liveSpeedKmh ||
-          existingItem.avg24hSpeedKmh !== newItem.avg24hSpeedKmh ||
+          existingLiveBucket !== newLiveBucket ||
+          existingAvg24hBucket !== newAvg24hBucket ||
           existingItem.routeTitle !== newItem.routeTitle
         );
       });
@@ -155,16 +184,28 @@ function App() {
           newData = [...prevData, nextItem];
         }
 
-        const sortedData = sortLeaderboard(newData, sortMetricRef.current);
+        const now = Date.now();
+        const isInitialFill = prevData.length === 0;
+        const shouldRerankNow = isInitialFill || (now - lastRerankAtRef.current) >= RERANK_INTERVAL_MS;
 
-        // Check if order changed by comparing route order
-        const orderChanged = sortedData.some((item, index) =>
+        // To reduce jitter, we usually keep the existing order and just update values.
+        // We only compute a new ranking on an interval (or initial fill).
+        const nextData = shouldRerankNow
+          ? sortLeaderboard(newData, sortMetricRef.current)
+          : newData;
+
+        if (shouldRerankNow) {
+          lastRerankAtRef.current = now;
+        }
+
+        // Check if order changed by comparing route order (only meaningful when re-ranking)
+        const orderChanged = shouldRerankNow && nextData.some((item, index) =>
           prevData[index]?.routeNumber !== item.routeNumber
         );
 
         // Update state and ref
-        leaderboardDataRef.current = sortedData;
-        setLeaderboardData(sortedData);
+        leaderboardDataRef.current = nextData;
+        setLeaderboardData(nextData);
 
         // If order didn't change, immediately process next item
         // Otherwise wait 1 second for animation
