@@ -22,8 +22,18 @@ type SpeedRecord = {
 
 type CacheData = {
     startTime: string;
+    startTimeMs: number;
     records: SpeedRecord[];
 };
+
+// Route title caching (1 hour TTL like api/ttc.ts)
+type RouteTitlesCache = {
+    fetchedAtMs: number;
+    titlesByRouteTag: Record<string, string>;
+};
+
+let routeTitlesCache: RouteTitlesCache | null = null;
+const ROUTE_TITLES_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 // Utility functions from api/ttc.ts
 function asArray<T>(value: T | T[] | null | undefined): T[] {
@@ -44,13 +54,18 @@ function parseSpeedKmh(value: unknown): number | null {
 }
 
 async function getRouteTitlesByTag(parser: XMLParser): Promise<Record<string, string>> {
+    const now = Date.now();
+    if (routeTitlesCache && now - routeTitlesCache.fetchedAtMs < ROUTE_TITLES_TTL_MS) {
+        return routeTitlesCache.titlesByRouteTag;
+    }
+
     try {
         const resp = await fetch(
             'https://webservices.umoiq.com/service/publicXMLFeed?command=routeList&a=ttc'
         );
         if (!resp.ok) {
             console.warn(`Failed to fetch routeList (${resp.status}), continuing without titles`);
-            return {};
+            return routeTitlesCache?.titlesByRouteTag ?? {};
         }
 
         const xml = await resp.text();
@@ -67,10 +82,11 @@ async function getRouteTitlesByTag(parser: XMLParser): Promise<Record<string, st
             titlesByRouteTag[tag] = title;
         }
 
+        routeTitlesCache = { fetchedAtMs: now, titlesByRouteTag };
         return titlesByRouteTag;
     } catch (error) {
         console.warn('Error fetching route titles:', error);
-        return {};
+        return routeTitlesCache?.titlesByRouteTag ?? {};
     }
 }
 
@@ -96,7 +112,7 @@ async function fetchCurrentSpeeds(): Promise<SpeedRecord[]> {
         const jsonData = parser.parse(xmlData);
 
         const vehicles = asArray<Record<string, unknown>>(jsonData?.body?.vehicle);
-        const routeData: { [key: string]: { total_speed: number; total_vehicles: number } } = {};
+        const routeData: { [key: string]: { total_speed: number; total_trams: number } } = {};
 
         for (const vehicle of vehicles) {
             const route = vehicle['@_routeTag'];
@@ -110,26 +126,26 @@ async function fetchCurrentSpeeds(): Promise<SpeedRecord[]> {
             if (!routeData[route]) {
                 routeData[route] = {
                     total_speed: 0,
-                    total_vehicles: 0
+                    total_trams: 0
                 };
             }
             routeData[route].total_speed += speedKmh;
-            routeData[route].total_vehicles += 1;
+            routeData[route].total_trams += 1;
         }
 
         const routeTitlesByTag = await getRouteTitlesByTag(parser);
         const records: SpeedRecord[] = [];
 
         for (const [routeTag, data] of Object.entries(routeData)) {
-            if (data.total_vehicles <= 0) continue;
-            const avgSpeed = parseFloat((data.total_speed / data.total_vehicles).toFixed(1));
+            if (data.total_trams <= 0) continue;
+            const avgSpeed = parseFloat((data.total_speed / data.total_trams).toFixed(1));
             records.push({
                 timestamp,
                 timestampMs: nowMs,
                 routeTag,
                 routeTitle: routeTitlesByTag[routeTag] ?? null,
                 speedKmh: avgSpeed,
-                vehicleCount: data.total_vehicles
+                vehicleCount: data.total_trams
             });
         }
 
@@ -143,16 +159,25 @@ async function fetchCurrentSpeeds(): Promise<SpeedRecord[]> {
 function loadCache(): CacheData {
     if (!fs.existsSync(CACHE_FILE)) {
         const startTime = new Date().toISOString();
-        return { startTime, records: [] };
+        const startTimeMs = Date.now();
+        return { startTime, startTimeMs, records: [] };
     }
 
     try {
         const content = fs.readFileSync(CACHE_FILE, 'utf-8');
-        return JSON.parse(content) as CacheData;
+        const data = JSON.parse(content) as CacheData;
+        // Ensure startTimeMs exists for backward compatibility
+        if (!data.startTimeMs && data.records.length > 0) {
+            data.startTimeMs = data.records[0].timestampMs;
+        } else if (!data.startTimeMs) {
+            data.startTimeMs = Date.now();
+        }
+        return data;
     } catch (error) {
         console.error('Error loading cache, starting fresh:', error);
         const startTime = new Date().toISOString();
-        return { startTime, records: [] };
+        const startTimeMs = Date.now();
+        return { startTime, startTimeMs, records: [] };
     }
 }
 
@@ -219,7 +244,7 @@ async function main(): Promise<void> {
     console.log('=================================================\n');
     console.log('Press Ctrl+C to stop collection\n');
 
-    // Load existing cache to show stats
+    // Load existing cache to show stats and get start time
     const cache = loadCache();
     printStats(cache);
 
@@ -231,18 +256,16 @@ async function main(): Promise<void> {
         await collectSample();
         
         // Check if we've reached the target duration
-        const cache = loadCache();
-        if (cache.records.length > 0) {
-            const startMs = cache.records[0].timestampMs;
-            const nowMs = Date.now();
-            const elapsedDays = (nowMs - startMs) / (1000 * 60 * 60 * 24);
-            
-            if (elapsedDays >= durationDays) {
-                console.log(`\nTarget duration of ${durationDays} days reached.`);
-                printStats(cache);
-                clearInterval(interval);
-                process.exit(0);
-            }
+        // Use cached startTimeMs instead of reloading the entire file
+        const nowMs = Date.now();
+        const elapsedDays = (nowMs - cache.startTimeMs) / (1000 * 60 * 60 * 24);
+        
+        if (elapsedDays >= durationDays) {
+            console.log(`\nTarget duration of ${durationDays} days reached.`);
+            const finalCache = loadCache();
+            printStats(finalCache);
+            clearInterval(interval);
+            process.exit(0);
         }
     }, FETCH_INTERVAL_MS);
 
