@@ -5,6 +5,7 @@ export interface LeaderboardData {
     avg24hSpeedKmh: number | null;
     vehicleCount: number;
     updatedAt: string; // ISO string
+    transitType: 'bus' | 'streetcar' | 'subway';
 }
 
 export class LeaderboardQueue {

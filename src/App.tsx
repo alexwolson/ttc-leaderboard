@@ -117,6 +117,7 @@ function App() {
         avg24hSpeedKmh: route.avg24hSpeedKmh,
         vehicleCount: route.vehicleCount,
         updatedAt: route.updatedAt,
+        transitType: getTransitType(route.routeTag),
       }));
 
       // Filter to find elements that are different from current leaderboard
@@ -277,7 +278,7 @@ function App() {
               }
 
               const filteredData = leaderboardData.filter((position) => 
-                transitFilter === 'all' || getTransitType(position.routeNumber) === transitFilter
+                transitFilter === 'all' || position.transitType === transitFilter
               );
 
               if (filteredData.length === 0) {
@@ -298,7 +299,7 @@ function App() {
                     routeTitle={position.routeTitle?.trim().length ? position.routeTitle : position.routeNumber}
                     liveSpeedKmh={position.liveSpeedKmh}
                     avg24hSpeedKmh={position.avg24hSpeedKmh}
-                    transitType={getTransitType(position.routeNumber)}
+                    transitType={position.transitType}
                   />
                 </motion.div>
               ));
