@@ -32,3 +32,11 @@
 .position-route-number.blue {
     color: #4a9eff;
 }
+
+.position-route-number.red {
+    color: #ff4a4a;
+}
+
+.position-route-number.green {
+    color: #4aff4a;
+}
